@@ -2,7 +2,8 @@
 
 import { z } from 'zod';
 
-import { QueryItem, ResultItem } from './types';
+import { CountryItem, QueryItem, ResultItem } from './types';
+import countries from './countries.json';
 
 const API_KEY = process.env.API_KEY;
 
@@ -10,10 +11,10 @@ const schema = z.object({
   fullName: z.string({
     required_error: 'Name is required',
     invalid_type_error: 'Name must be a string'
-  }),
-  birthYear: z.number({
+  }).trim(),
+  birthYear: z.coerce.number({
     required_error: 'Birth year is required',
-    invalid_type_error: 'Birth year must be a number'
+    invalid_type_error: 'Birth year is required'
   }).positive().lte(new Date().getFullYear()),
   country: z.string({
     required_error: 'Country is required',
@@ -35,21 +36,42 @@ async function _apiLookup(query: QueryItem): Promise<Response> {
         {
           name: query.fullName
         }
-      ]
+      ],
+      type: ['individual']
     })
   });
 }
 
-function _matchFields(matches: any): ResultItem {
+function _matchFields(query: QueryItem, matches: any): ResultItem {
     const matchResult: ResultItem = {
       fullName: false,
       birthYear: false,
       country: false
     };
 
-    matches.forEach((match: any) => {
+    const match = matches[<string>query.fullName][0];
 
-    });
+    if (!match) {
+      return matchResult;
+    }
+
+    matchResult.fullName = true;
+
+    try {
+      const birthYear = parseInt(match.dob.split(' ').pop());
+      if (birthYear === query.birthYear) {
+        matchResult.birthYear = true;
+      }
+    } catch {} // Do nothing if DOB not available or other error
+
+    try {
+      const country = match.addresses[0].country;
+      if (country === query.country) {
+        matchResult.country = true;
+      }
+    } catch {} // Do nothing if location not available
+
+    console.log(matchResult);
 
     return matchResult;
 }
@@ -64,13 +86,18 @@ export async function lookup(formData: QueryItem): Promise<ResultItem> {
     };
   }
 
-  const response = await _apiLookup(formData);
+  const response = await _apiLookup(validatedFields.data);
 
   if (response.status !== 200) {
-    throw new Error(await response.text());
+    console.log(response.statusText);
+    throw new Error(response.statusText);
   }
 
   const body = await response.json();
 
-  return _matchFields(body.matches);
+  return _matchFields(validatedFields.data, body.matches);
+}
+
+export async function getCountries(): Promise<CountryItem[]> {
+  return countries.map((country, i) => ({ id: i, name: country.name }));
 }

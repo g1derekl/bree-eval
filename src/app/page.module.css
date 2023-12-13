@@ -22,8 +22,7 @@ label.formGroup input {
 }
 
 .searchForm {
-  width: 60%;
-  max-width: 300px;
+  width: 300px;
 }
 
 .searchForm .invalid {
@@ -48,4 +47,12 @@ label.formGroup input {
   display: block;
   margin: 0.5rem 0;
   padding-left: 16px;
+}
+
+.results h4 {
+  margin-bottom: 1rem;
+}
+
+.results .entry {
+  margin: 0.5rem 0;
 }

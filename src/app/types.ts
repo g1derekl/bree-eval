@@ -2,19 +2,23 @@ export type QueryItem = {
   fullName?: string;
   birthYear?: number;
   country?: string;
+} & {
+  [key: string]: string | number | undefined
 };
 
-type Results = {
+export type Result = {
   fullName: boolean;
   birthYear: boolean;
   country: boolean;
+} & {
+  [key: string]: boolean
 };
 
-type ValidationError = {
+export type ValidationError = {
   errors: any;
 };
 
-export type ResultItem = Results | ValidationError;
+export type ResultItem = ValidationError | Result;
 
 export type CountryItem = {
   id: number,
