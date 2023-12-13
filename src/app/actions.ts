@@ -2,7 +2,7 @@
 
 import { z } from 'zod';
 
-import { CountryItem, QueryItem, ResultItem } from './types';
+import { CountryItem, QueryItem, ResultItem, Result } from './types';
 import countries from './countries.json';
 
 const API_KEY = process.env.API_KEY;
@@ -42,47 +42,51 @@ async function _apiLookup(query: QueryItem): Promise<Response> {
   });
 }
 
-function _matchFields(query: QueryItem, matches: any): ResultItem {
-    const matchResult: ResultItem = {
-      fullName: false,
-      birthYear: false,
-      country: false
-    };
+function _matchIndividual(query: QueryItem, match: any): ResultItem {
+  const matchResult: ResultItem = {
+    fullName: true,
+    birthYear: false,
+    country: false
+  };
 
-    const match = matches[<string>query.fullName][0];
-
-    if (!match) {
-      return matchResult;
+  try {
+    const birthYear = parseInt(match.dob.split(' ').pop());
+    if (birthYear === query.birthYear) {
+      matchResult.birthYear = true;
     }
+  } catch {} // Do nothing if DOB not available or other error
 
-    matchResult.fullName = true;
+  try {
+    const country = match.addresses[0].country;
+    if (country === query.country) {
+      matchResult.country = true;
+    }
+  } catch {} // Do nothing if location not available
 
-    try {
-      const birthYear = parseInt(match.dob.split(' ').pop());
-      if (birthYear === query.birthYear) {
-        matchResult.birthYear = true;
-      }
-    } catch {} // Do nothing if DOB not available or other error
-
-    try {
-      const country = match.addresses[0].country;
-      if (country === query.country) {
-        matchResult.country = true;
-      }
-    } catch {} // Do nothing if location not available
-
-    console.log(matchResult);
-
-    return matchResult;
+  return matchResult;
 }
 
-export async function lookup(formData: QueryItem): Promise<ResultItem> {
+function _matchFields(query: QueryItem, matches: any): Result {
+    const matchResults: ResultItem[] = matches[<string>query.fullName].map((match: any) => {
+      return _matchIndividual(query, match);
+    });
+
+    return { matches: matchResults };
+}
+
+/**
+ * Take the output of a form entry and check its fields against the SDN dataset
+ * @param {QueryItem} formData The query parameters
+ * @returns {Promise<ResultItem>} A promise that resolves to an object indicating which fields match
+ */
+export async function lookup(formData: QueryItem): Promise<Result> {
   const validatedFields = schema.safeParse(formData);
 
   // Return early if the form data is invalid
   if (!validatedFields.success) {
     return {
-      errors: validatedFields.error.flatten().fieldErrors
+      errors: validatedFields.error.flatten().fieldErrors,
+      matches: []
     };
   }
 

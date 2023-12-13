@@ -6,7 +6,7 @@ export type QueryItem = {
   [key: string]: string | number | undefined
 };
 
-export type Result = {
+export type ResultItem = {
   fullName: boolean;
   birthYear: boolean;
   country: boolean;
@@ -14,11 +14,10 @@ export type Result = {
   [key: string]: boolean
 };
 
-export type ValidationError = {
-  errors: any;
+export type Result = {
+  matches: ResultItem[];
+  errors?: any;
 };
-
-export type ResultItem = ValidationError | Result;
 
 export type CountryItem = {
   id: number,

@@ -4,7 +4,7 @@ import { ChangeEvent, FormEvent, ReactElement, useEffect, useState } from 'react
 import { ReactSearchAutocomplete } from 'react-search-autocomplete'
 
 import styles from './page.module.css'
-import { CountryItem, QueryItem, Result, ResultItem, ValidationError } from './types';
+import { CountryItem, QueryItem, Result, ResultItem } from './types';
 import { getCountries, lookup } from './actions';
 
 const NAME_MAP: { [key: string]: string | number } = {
@@ -34,7 +34,7 @@ function FormInputWithValidation({
     <label className={styles.formGroup}>
       <span>{label}</span>
       <input name={name} type={type} value={value || ''} onChange={onChange} />
-      {errors ? errors.map((error, i) =>
+      {errors ? errors.map((error: string, i: number) =>
         <small className={styles.invalid} key={i}>{error}</small>) :
         <small>&nbsp;</small>
       }
@@ -46,7 +46,7 @@ export default function App(): ReactElement {
   const [countryList, setCountryList] = useState<CountryItem[]>([]);
   const [validationErrors, setErrors] = useState<any>({});
   const [formState, setFormState] = useState<QueryItem>({});
-  const [searchResult, setSearchResult] = useState<ResultItem>();
+  const [searchResults, setSearchResults] = useState<ResultItem[]>();
 
   const getCountryList = async () => {
     const countries = await getCountries();
@@ -83,19 +83,19 @@ export default function App(): ReactElement {
     const query: QueryItem = {};
 
     // Convert empty strings to null because Zod treats empty strings as truthy
-    Object.keys(formState).forEach((key) => {
+    Object.keys(formState).forEach((key: string) => {
       if (formState[key]) {
         query[key] = formState[key];
       }
     });
 
     const result = await lookup(query);
-    if ((result as ValidationError).errors) {
+    if (result.errors) {
       setErrors(result.errors);
-      setSearchResult(undefined);
+      setSearchResults(undefined);
     } else {
       setErrors({});
-      setSearchResult(result);
+      setSearchResults(result.matches);
     }
   };
 
@@ -140,14 +140,21 @@ export default function App(): ReactElement {
         </form>
       </div>
       {
-        searchResult ? (
+        searchResults ? (
           <div className={styles.results}>
-            <h4>Results</h4>
+            <h4>Result: {searchResults.length ? 
+              <b className={styles.hit}>HIT</b> : 
+              <b className={styles.clear}>CLEAR</b>
+            }</h4>
             {
-              Object.keys(searchResult as ResultItem).map((key, i) => (
-                <div key={i} className={styles.entry}>
-                  {NAME_MAP[key]}: {(searchResult as Result)[key] ? '✅' : '❌'}
-                </div>
+              searchResults.map((result: ResultItem, i: number) => (
+                <div className={styles.match} key={i}>{
+                  Object.keys(result).map((key: string, i: number) => (
+                    <div key={i} className={styles.field}>
+                      {NAME_MAP[key]}: {result[key] ? '✅' : '❌'}
+                    </div>
+                  ))
+                  }</div>
               ))
             }
           </div>

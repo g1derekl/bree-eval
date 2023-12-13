@@ -53,6 +53,20 @@ label.formGroup input {
   margin-bottom: 1rem;
 }
 
-.results .entry {
+.results .match {
+  margin: 1rem 0;
+  padding: 0.25rem 1rem;
+  border: 1px solid orangered;
+}
+
+.results .field {
   margin: 0.5rem 0;
+}
+
+.results .hit {
+  color: orangered;
+}
+
+.results .clear {
+  color: green;
 }
