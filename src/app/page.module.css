@@ -1,10 +1,14 @@
 .main {
   display: flex;
   flex-direction: column;
-  justify-content: space-around;
+  justify-content: start;
   align-items: center;
   padding: 6rem;
   min-height: 100vh;
+}
+
+.header, .searchForm, .results {
+  margin-bottom: 3rem;
 }
 
 label.formGroup {

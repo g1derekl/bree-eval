@@ -57,6 +57,7 @@ export default function App(): ReactElement {
     getCountryList();
   }, []);
 
+  // Event handlers for the typeahead select component
   const handleSelect = (item: CountryItem): void => {
     setFormState({
       ...formState,
@@ -70,6 +71,7 @@ export default function App(): ReactElement {
       country: undefined
     });
   }
+  // =================================================
 
   const handleChange = (evt: ChangeEvent): void => {
     setFormState({
@@ -101,10 +103,10 @@ export default function App(): ReactElement {
 
   return (
     <main className={styles.main}>
-      <div>
+      <div className={styles.header}>
         <h2>OFAC Lookup</h2>
       </div>
-      <div>
+      <div className={styles.searchForm}>
         <form className={styles.searchForm} onSubmit={handleSubmit}>
           <FormInputWithValidation
             label="Full Name"
@@ -160,7 +162,6 @@ export default function App(): ReactElement {
           </div>
         ) : null
       }
-
     </main>
   )
 }

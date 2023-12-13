@@ -102,6 +102,10 @@ export async function lookup(formData: QueryItem): Promise<Result> {
   return _matchFields(validatedFields.data, body.matches);
 }
 
+/**
+ * 
+ * @returns An array of objects, each containing a country name and its list index
+ */
 export async function getCountries(): Promise<CountryItem[]> {
   return countries.map((country, i) => ({ id: i, name: country.name }));
 }
