@@ -1,95 +1,108 @@
-import Image from 'next/image'
-import styles from './page.module.css'
+'use client';
 
-export default function Home() {
+import { ChangeEvent, FormEvent, ReactElement, useState } from 'react';
+import { ReactSearchAutocomplete } from 'react-search-autocomplete'
+
+import styles from './page.module.css'
+import { CountryItem, QueryItem, ResultItem } from './types';
+import { lookup } from './actions';
+
+type FormInputProps = {
+  label: string;
+  name: string;
+  type: string;
+  onChange: (evt: ChangeEvent) => void;
+  value?: string | number;
+  errors?: string[];
+};
+
+function FormInputWithValidation({
+  label,
+  name,
+  type,
+  onChange,
+  value,
+  errors
+}: FormInputProps): ReactElement {
+  return (
+    <label className={styles.formGroup}>
+      <span>{label}</span>
+      <input name={name} type={type} value={value || ''} onChange={onChange} />
+      {errors ? errors.map((error, i) => <small className={styles.invalid} key={i}>{error}</small>) : null}
+    </label>
+  )
+}
+
+export default function App(): ReactElement {
+  const [validationErrors, setErrors] = useState<any>({});
+  const [formState, setFormState] = useState<QueryItem>({});
+
+  const items: CountryItem[] = [
+    { id: 0, name: 'Canada' },
+    { id: 1, name: 'USA' },
+    { id: 2, name: 'Mexico' },
+    { id: 3, name: 'Guatemala' }
+  ]
+
+  const handleOnSelect = (item: CountryItem): void => {
+    setFormState({
+      ...formState,
+      country: item.name
+    });
+  };
+
+  const handleChange = (evt: ChangeEvent): void => {
+    setFormState({
+      ...formState,
+      [(evt.target as HTMLInputElement).name]: (evt.target as HTMLInputElement).value
+    });
+  };
+
+  const handleSubmit = async (evt: FormEvent<HTMLFormElement>): Promise<void> => {
+    evt.preventDefault();
+    const result = await lookup(formState);
+    if ('errors' in result) {
+      setErrors(result.errors);
+    }
+  };
+
   return (
     <main className={styles.main}>
-      <div className={styles.description}>
-        <p>
-          Get started by editing&nbsp;
-          <code className={styles.code}>src/app/page.tsx</code>
-        </p>
-        <div>
-          <a
-            href="https://vercel.com?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            By{' '}
-            <Image
-              src="/vercel.svg"
-              alt="Vercel Logo"
-              className={styles.vercelLogo}
-              width={100}
-              height={24}
-              priority
-            />
-          </a>
-        </div>
+      <div>
+        <h2>OFAC Lookup</h2>
       </div>
-
-      <div className={styles.center}>
-        <Image
-          className={styles.logo}
-          src="/next.svg"
-          alt="Next.js Logo"
-          width={180}
-          height={37}
-          priority
+      <form className={styles.searchForm} onSubmit={handleSubmit}>
+        <FormInputWithValidation
+          label="Full Name"
+          name="fullName"
+          type="text"
+          value={formState.fullName}
+          onChange={handleChange}
+          errors={validationErrors.fullName}
         />
-      </div>
-
-      <div className={styles.grid}>
-        <a
-          href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className={styles.card}
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2>
-            Docs <span>-&gt;</span>
-          </h2>
-          <p>Find in-depth information about Next.js features and API.</p>
-        </a>
-
-        <a
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className={styles.card}
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2>
-            Learn <span>-&gt;</span>
-          </h2>
-          <p>Learn about Next.js in an interactive course with&nbsp;quizzes!</p>
-        </a>
-
-        <a
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className={styles.card}
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2>
-            Templates <span>-&gt;</span>
-          </h2>
-          <p>Explore starter templates for Next.js.</p>
-        </a>
-
-        <a
-          href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className={styles.card}
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2>
-            Deploy <span>-&gt;</span>
-          </h2>
-          <p>
-            Instantly deploy your Next.js site to a shareable URL with Vercel.
-          </p>
-        </a>
-      </div>
+        <FormInputWithValidation
+          label="Year of Birth"
+          name="birthYear"
+          type="number"
+          value={formState.birthYear}
+          onChange={handleChange}
+          errors={validationErrors.birthYear}
+        />
+        <label className={styles.countryInput}>
+          <span>Country</span>
+          <ReactSearchAutocomplete
+            styling={{
+              borderRadius: '4px',
+              fontSize: '1rem'
+            }}
+            items={items}
+            onSelect={handleOnSelect}
+            placeholder="Start typing..."
+          />
+          {validationErrors.country ? <small className={styles.invalid}>{validationErrors.country}</small> : null}
+        </label>
+        <button type="submit">Search</button>
+      </form>
     </main>
   )
 }
