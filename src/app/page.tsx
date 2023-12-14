@@ -4,7 +4,7 @@ import { ChangeEvent, FormEvent, ReactElement, useEffect, useState } from 'react
 import { ReactSearchAutocomplete } from 'react-search-autocomplete'
 
 import styles from './page.module.css'
-import { CountryItem, QueryItem, Result, ResultItem } from './types';
+import { CountryItem, QueryItem, ResultItem } from './types';
 import { getCountries, lookup } from './actions';
 
 const NAME_MAP: { [key: string]: string | number } = {

@@ -9,12 +9,10 @@
     "lint": "next lint"
   },
   "dependencies": {
-    "fast-xml-parser": "^4.3.2",
     "next": "14.0.4",
     "react": "^18",
     "react-dom": "^18",
     "react-search-autocomplete": "^8.5.2",
-    "react-typeahead": "^2.0.0-alpha.8",
     "zod": "^3.22.4"
   },
   "devDependencies": {

@@ -1,3 +1,4 @@
+// Represents the object created by a user's input in the search form
 export type QueryItem = {
   fullName?: string;
   birthYear?: number;
@@ -6,6 +7,7 @@ export type QueryItem = {
   [key: string]: string | number | undefined
 };
 
+// Represents the result of each match in a query
 export type ResultItem = {
   fullName: boolean;
   birthYear: boolean;
