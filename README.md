@@ -4,8 +4,7 @@
 
 ##### Implementation
 
-This application is built on Next.js and bootstrapped using `create-next-app`, consisting of a single page in the `src/app` folder that outputs the React component `App`.
-It has minimal external dependencies; the only 3rd-party component is a search autocomplete text field for looking up countries. The user enters a name, year of birth and country of residence and the application searches against SDN data using the [OFAC API](https://ofac-api.com/documentation/v3/index.html) service. If a match is found, a results panel will display and show which fields match that of the initial query.
+This application is built on Next.js and bootstrapped using `create-next-app`, consisting of a single page in the `src/app` folder that outputs the React component `App`. It has minimal external dependencies; the only 3rd-party component is a search autocomplete text field for looking up countries. The user enters a name, year of birth and country of residence and the application searches against SDN data using the [OFAC API](https://ofac-api.com/documentation/v3/index.html) service. If a match is found, a results panel will display and show which fields match that of the initial query. If any of the input fields is missing, an error message will display under that input element.
 
  Server-side actions are performed in the `actions.ts` file; it makes the requests to the SDN API and analyzes each match. It also fetches a list of countries as listed by ISO-3166 (taken from [here](https://raw.githubusercontent.com/lukes/ISO-3166-Countries-with-Regional-Codes/master/slim-2/slim-2.json)) for the country autocomplete component.
 
